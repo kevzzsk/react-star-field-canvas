@@ -11,12 +11,18 @@ const createStarFieldIntoCanvas = (
 ) => {
   const engine = new StarFieldEngine(canvas, options);
 
-  canvas.addEventListener("star-field-start", () => {
+  window.addEventListener("star-field-start", () => {
     engine.start();
   });
 
-  canvas.addEventListener("star-field-stop", () => {
+  window.addEventListener("star-field-stop", () => {
     engine.stop();
+  });
+
+  window.addEventListener("star-field-set-options", (evt: Event) => {
+    const options = (evt as CustomEvent).detail as StarFieldOptions;
+
+    engine.setOptions(options);
   });
 
   engine.start();

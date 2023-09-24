@@ -213,4 +213,12 @@ export class StarFieldEngine {
       this.resetMouseOffset();
     }
   }
+
+  setOptions(options: Partial<StarFieldOptions>) {
+    const merged: StarFieldOptions = { ...this.options, ...options };
+    const sanitizedMerge = this.sanitizeOptions(merged);
+
+    // instead of replacing the options object, we are just updating the values dinamically so we can keep the reference
+    Object.assign(this.options, sanitizedMerge);
+  }
 }

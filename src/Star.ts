@@ -126,6 +126,7 @@ export class Star {
     } else {
       computedColor = this.options.color;
     }
+
     this.ctx.fillStyle = `rgb(${computedColor.r}, ${computedColor.g}, ${computedColor.b}, ${opacity})`;
     this.ctx.beginPath();
     this.ctx.arc(newX, newY, newRadius, 0, Math.PI * 2);

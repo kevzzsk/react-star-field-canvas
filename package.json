@@ -6,7 +6,7 @@
     "email": "pauxiscezar@gmail.com",
     "url": "https://pauxis.dev"
   },
-  "version": "1.0.1",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -20,12 +20,10 @@
     "map-number-to-range": "github:tdous/map-number-to-range"
   },
   "peerDependencies": {
-    "react-dom": "^18.2.0",
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "react-dom": "^18.2.0",
-    "react": "^18.2.0",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
@@ -34,6 +32,8 @@
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
     "vite-plugin-dts": "^3.5.4"
@@ -46,6 +46,7 @@
   "module": "./dist/react-star-field-canvas.js",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/react-star-field-canvas.js",
       "require": "./dist/react-star-field-canvas.js"
     }

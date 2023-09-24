@@ -1,19 +1,24 @@
-import { mapNumberToRange } from 'map-number-to-range';
+import { mapNumberToRange } from "map-number-to-range";
 
-import { defaultColor, StarColorObj } from './starColor';
+import { StarColorObject } from "./types/StarColor";
+import { AnimLoopEngine } from "anim-loop-engine";
 
 type StarOpts = {
-  ctx: any;
+  canvas2dContext: CanvasRenderingContext2D;
   W: number;
   H: number;
   hW: number;
   hH: number;
   minV: number;
   maxV: number;
-  color?: StarColorObj;
+  color?:
+    | StarColorObject
+    | ((x: number, y: number, z: number) => StarColorObject);
   glow: boolean;
   trails: boolean;
-  addTasks?: Function;
+  longerTrails: boolean;
+  trailColor: StarColorObject;
+  addTasks?: typeof AnimLoopEngine.prototype.addTasks;
 };
 
 export class Star {
@@ -23,28 +28,35 @@ export class Star {
   private v: number = 0;
   private radius: number = 0;
 
+  private beforeLastX: number = 0;
+  private beforeLastY: number = 0;
+
   private lastX: number = 0;
   private lastY: number = 0;
 
-  private splashLimitX: number[] = [0, 0];
-  private splashLimitY: number[] = [0, 0];
+  // private splashLimitX: number[] = [0, 0];
+  // private splashLimitY: number[] = [0, 0];
 
-  ctx: any;
+  ctx: CanvasRenderingContext2D;
   W: number;
   H: number;
   hW: number;
   hH: number;
   minV: number;
   maxV: number;
-  color: StarColorObj;
+  color:
+    | StarColorObject
+    | ((x: number, y: number, z: number) => StarColorObject);
   glow: boolean;
   trails: boolean;
+  longerTrails: boolean = false;
+  trailColor: StarColorObject;
 
-  addTasks: Function;
+  addTasks: typeof AnimLoopEngine.prototype.addTasks;
 
   constructor(opts: StarOpts) {
     const {
-      ctx,
+      canvas2dContext: ctx,
       W,
       H,
       hW,
@@ -54,7 +66,9 @@ export class Star {
       color,
       glow,
       trails,
-      addTasks
+      addTasks,
+      longerTrails,
+      trailColor,
     } = opts;
 
     this.ctx = ctx;
@@ -66,10 +80,13 @@ export class Star {
     this.maxV = maxV;
     this.glow = glow;
     this.trails = trails;
-    this.color = color ? color : defaultColor;
+    this.longerTrails = longerTrails ?? false;
+    this.trailColor = trailColor ?? { r: 255, g: 255, b: 255 };
 
-    this.splashLimitX = [-hW, hW];
-    this.splashLimitY = [-hH, hH];
+    this.color = color ?? { r: 255, g: 255, b: 255 };
+
+    // this.splashLimitX = [-hW, hW];
+    // this.splashLimitY = [-hH, hH];
 
     this.addTasks = addTasks!;
 
@@ -85,7 +102,7 @@ export class Star {
   draw(offsetX: number, offsetY: number) {
     this.z -= this.v;
     if (this.z <= 0) {
-      // Start of attempting to add bursts on "collision" with the viewport 
+      // Start of attempting to add bursts on "collision" with the viewport
       // if (
       //   this.lastX > this.splashLimitX[0] &&
       //   this.lastX < this.splashLimitX[1] &&
@@ -101,8 +118,8 @@ export class Star {
     }
 
     // Update x and y - 0.8 is an arbitrary fraction of the
-    let newX = this.W * (this.x / this.z) - offsetX;
-    let newY = this.H * (this.y / this.z) - offsetY;
+    const newX = this.W * (this.x / this.z) - offsetX;
+    const newY = this.H * (this.y / this.z) - offsetY;
 
     // Get max Z and calc new radius/opacity based on star's position in Z range
     const maxZ = this.getInitialZ();
@@ -112,17 +129,21 @@ export class Star {
       (1 - mapNumberToRange(this.z, 0, maxZ, 0, 1)) * this.radius;
 
     // Calculate a new opacity based on Z
-    var opacity =
+    const opacity =
       Math.round(10 - mapNumberToRange(this.z, 0, maxZ, 0, 10)) / 10;
-    var trailOpacity = opacity / 4;
+    const trailOpacity = opacity / 4;
 
     // Draw star trail
     if (this.trails && this.lastX !== this.x) {
       this.ctx.lineWidth = newRadius;
-      this.ctx.strokeStyle = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${trailOpacity})`;
+      this.ctx.strokeStyle = `rgba(${this.trailColor.r}, ${this.trailColor.g}, ${this.trailColor.b}, ${trailOpacity})`;
       this.ctx.beginPath();
       this.ctx.moveTo(newX, newY);
-      this.ctx.lineTo(this.lastX, this.lastY);
+      if (this.longerTrails) {
+        this.ctx.lineTo(this.beforeLastX, this.beforeLastY);
+      } else {
+        this.ctx.lineTo(this.lastX, this.lastY);
+      }
       this.ctx.stroke();
     }
 
@@ -130,11 +151,17 @@ export class Star {
     if (this.glow) {
       this.ctx.save();
       this.ctx.shadowBlur = 5;
-      this.ctx.shadowColor = '#FFF';
+      this.ctx.shadowColor = "#FFF";
     }
 
     // Draw the star
-    this.ctx.fillStyle = `rgb(${this.color.r}, ${this.color.g}, ${this.color.b}, ${opacity})`;
+    let computedColor;
+    if (typeof this.color === "function") {
+      computedColor = this.color(offsetX, offsetY, this.z);
+    } else {
+      computedColor = this.color;
+    }
+    this.ctx.fillStyle = `rgb(${computedColor.r}, ${computedColor.g}, ${computedColor.b}, ${opacity})`;
     this.ctx.beginPath();
     this.ctx.arc(newX, newY, newRadius, 0, Math.PI * 2);
     this.ctx.fill();
@@ -145,6 +172,9 @@ export class Star {
     }
 
     // Update last x/y
+    this.beforeLastX = this.lastX;
+    this.beforeLastY = this.lastY;
+
     this.lastX = newX;
     this.lastY = newY;
   }

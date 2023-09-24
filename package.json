@@ -1,7 +1,12 @@
 {
   "name": "react-star-field-canvas",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "author": {
+    "name": "Cezar Pauxis",
+    "email": "pauxiscezar@gmail.com",
+    "url": "https://pauxis.dev"
+  },
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -1,7 +1,7 @@
 import { mapNumberToRange } from "map-number-to-range";
 
-import { StarColorObject } from "./types/StarColor";
 import { AnimLoopEngine } from "anim-loop-engine";
+import { StarFieldOptions } from "./types/StarFieldOptions";
 
 type StarOpts = {
   canvas2dContext: CanvasRenderingContext2D;
@@ -9,16 +9,8 @@ type StarOpts = {
   H: number;
   hW: number;
   hH: number;
-  minV: number;
-  maxV: number;
-  color?:
-    | StarColorObject
-    | ((x: number, y: number, z: number) => StarColorObject);
-  glow: boolean;
-  trails: boolean;
-  longerTrails: boolean;
-  trailColor: StarColorObject;
   addTasks?: typeof AnimLoopEngine.prototype.addTasks;
+  options: StarFieldOptions;
 };
 
 export class Star {
@@ -42,48 +34,19 @@ export class Star {
   H: number;
   hW: number;
   hH: number;
-  minV: number;
-  maxV: number;
-  color:
-    | StarColorObject
-    | ((x: number, y: number, z: number) => StarColorObject);
-  glow: boolean;
-  trails: boolean;
-  longerTrails: boolean = false;
-  trailColor: StarColorObject;
+  options: StarFieldOptions;
 
   addTasks: typeof AnimLoopEngine.prototype.addTasks;
 
   constructor(opts: StarOpts) {
-    const {
-      canvas2dContext: ctx,
-      W,
-      H,
-      hW,
-      hH,
-      minV,
-      maxV,
-      color,
-      glow,
-      trails,
-      addTasks,
-      longerTrails,
-      trailColor,
-    } = opts;
+    const { canvas2dContext: ctx, W, H, hW, hH, addTasks, options } = opts;
 
     this.ctx = ctx;
     this.W = W;
     this.H = H;
     this.hW = hW;
     this.hH = hH;
-    this.minV = minV;
-    this.maxV = maxV;
-    this.glow = glow;
-    this.trails = trails;
-    this.longerTrails = longerTrails ?? false;
-    this.trailColor = trailColor ?? { r: 255, g: 255, b: 255 };
-
-    this.color = color ?? { r: 255, g: 255, b: 255 };
+    this.options = options;
 
     // this.splashLimitX = [-hW, hW];
     // this.splashLimitY = [-hH, hH];
@@ -134,12 +97,14 @@ export class Star {
     const trailOpacity = opacity / 4;
 
     // Draw star trail
-    if (this.trails && this.lastX !== this.x) {
+    if (this.options.trails && this.lastX !== this.x) {
       this.ctx.lineWidth = newRadius;
-      this.ctx.strokeStyle = `rgba(${this.trailColor.r}, ${this.trailColor.g}, ${this.trailColor.b}, ${trailOpacity})`;
+
+      const color = this.options.trailColor;
+      this.ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${trailOpacity})`;
       this.ctx.beginPath();
       this.ctx.moveTo(newX, newY);
-      if (this.longerTrails) {
+      if (this.options.longerTrails) {
         this.ctx.lineTo(this.beforeLastX, this.beforeLastY);
       } else {
         this.ctx.lineTo(this.lastX, this.lastY);
@@ -148,7 +113,7 @@ export class Star {
     }
 
     // Save drawing settings to restore after applying the glow to stars only
-    if (this.glow) {
+    if (this.options.glow) {
       this.ctx.save();
       this.ctx.shadowBlur = 5;
       this.ctx.shadowColor = "#FFF";
@@ -156,10 +121,10 @@ export class Star {
 
     // Draw the star
     let computedColor;
-    if (typeof this.color === "function") {
-      computedColor = this.color(offsetX, offsetY, this.z);
+    if (typeof this.options.color === "function") {
+      computedColor = this.options.color(offsetX, offsetY, this.z);
     } else {
-      computedColor = this.color;
+      computedColor = this.options.color;
     }
     this.ctx.fillStyle = `rgb(${computedColor.r}, ${computedColor.g}, ${computedColor.b}, ${opacity})`;
     this.ctx.beginPath();
@@ -167,7 +132,7 @@ export class Star {
     this.ctx.fill();
 
     // Undo glow settings
-    if (this.glow) {
+    if (this.options.glow) {
       this.ctx.restore();
     }
 
@@ -184,7 +149,9 @@ export class Star {
     // Define a new random position within the canvas, velocity, and radius
     this.x = Math.random() * this.W - this.hW;
     this.y = Math.random() * this.H - this.hH;
-    this.v = Math.random() * (this.maxV - this.minV) + this.minV;
+    this.v =
+      Math.random() * (this.options.maxSpeed - this.options.minSpeed) +
+      this.options.minSpeed;
     this.radius = Number((Math.random() * 2 + 1).toPrecision(3));
 
     // Clear last x/y so we don't draw a trail from end to new reset location

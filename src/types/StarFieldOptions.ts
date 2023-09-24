@@ -5,7 +5,7 @@ export type StarFieldOptions = {
   followContext?: HTMLElement;
   color:
     | StarColorObject
-    | ((x: number, y: number, z: number) => StarColorObject);
+    | ((x?: number, y?: number, z?: number) => StarColorObject);
   glow: boolean;
   maxSpeed: number;
   minSpeed: number;

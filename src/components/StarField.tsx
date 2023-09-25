@@ -1,8 +1,24 @@
 import { StarFieldOptions } from "../types/StarFieldOptions";
 import { StarFieldEngine } from "../StarFieldEngine";
+import { FunctionComponent } from "react";
 
 export type StarFieldProps = Partial<StarFieldOptions> & {
   className?: string;
+};
+
+const defaultPropsValues: StarFieldProps = {
+  followMouse: false,
+  followContext: undefined,
+  color: { r: 255, g: 255, b: 255 },
+  glow: false,
+  maxSpeed: 5,
+  minSpeed: 2,
+  numStars: 400,
+  trails: false,
+  trailColor: { r: 255, g: 255, b: 255 },
+  longerTrails: false,
+  pauseOnBlur: true,
+  className: "",
 };
 
 const createStarFieldIntoCanvas = (
@@ -30,40 +46,20 @@ const createStarFieldIntoCanvas = (
   return engine;
 };
 
-export const StarField = ({
-  followMouse = false,
-  followContext = undefined,
-  color = { r: 255, g: 255, b: 255 },
-  glow = false,
-  maxSpeed = 5,
-  minSpeed = 2,
-  numStars = 400,
-  trails = false,
-  trailColor = { r: 255, g: 255, b: 255 },
-  longerTrails = false,
-  pauseOnBlur = true,
-  className = "",
+export const StarField: FunctionComponent<StarFieldProps> = ({
+  className,
+  ...options
 }: StarFieldProps) => {
   return (
     <canvas
       className={className}
       ref={(ref) => {
         if (ref) {
-          createStarFieldIntoCanvas(ref, {
-            followMouse,
-            followContext,
-            color,
-            glow,
-            maxSpeed,
-            minSpeed,
-            numStars,
-            trails,
-            trailColor,
-            longerTrails,
-            pauseOnBlur,
-          });
+          createStarFieldIntoCanvas(ref, options as StarFieldOptions);
         }
       }}
     ></canvas>
   );
 };
+
+StarField.defaultProps = defaultPropsValues;

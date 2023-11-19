@@ -89,10 +89,11 @@ You can style the canvas element by passing through the prop `className` the cla
 
 If you want to control the star field or change its options without re-rendering the StarField component (which will happen if you change the props with a state, for example), you have three events which you can dispatch:
 
-| Event.name  | Description | Event.detail |
-| ------------- | ------------- | --- |
-| `star-field-start` | Start the star field |  `undefined`
-| `star-field-stop`  | Stop the star field  |  `undefined`
+| Event.name               | Description                              | Event.detail |
+|--------------------------|------------------------------------------| --- |
+| `star-field-start`       | Start the star field                     |  `undefined`
+| `star-field-stop`        | Stop the star field                      |  `undefined`
+| `star-field-reset`       | Reset the star field                     |  `undefined`
 | `star-field-set-options` | Update the star field options on-the-fly | `Partial<StarFieldOptions>`
 
 ### Updating options on-the-fly

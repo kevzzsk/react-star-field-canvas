@@ -35,6 +35,10 @@ const createStarFieldIntoCanvas = (
     engine.stop();
   });
 
+  window.addEventListener("star-field-reset", () => {
+    engine.reset();
+  });
+
   window.addEventListener("star-field-set-options", (evt: Event) => {
     const options = (evt as CustomEvent).detail as StarFieldOptions;
 

@@ -18,6 +18,7 @@ const defaultPropsValues: StarFieldProps = {
   trailColor: { r: 255, g: 255, b: 255 },
   longerTrails: false,
   pauseOnBlur: true,
+  reinitializeOnResize: true,
   className: "",
 };
 
@@ -54,16 +55,15 @@ export const StarField: FunctionComponent<StarFieldProps> = ({
   className,
   ...options
 }: StarFieldProps) => {
+  const currentOptions = { ...defaultPropsValues, ...options };
   return (
     <canvas
       className={className}
       ref={(ref) => {
         if (ref) {
-          createStarFieldIntoCanvas(ref, options as StarFieldOptions);
+          createStarFieldIntoCanvas(ref, currentOptions as StarFieldOptions);
         }
       }}
     ></canvas>
   );
 };
-
-StarField.defaultProps = defaultPropsValues;

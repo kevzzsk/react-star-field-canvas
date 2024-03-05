@@ -14,4 +14,5 @@ export type StarFieldOptions = {
   longerTrails: boolean;
   trailColor: StarColorObject;
   pauseOnBlur: boolean;
+  reinitializeOnResize: boolean;
 };

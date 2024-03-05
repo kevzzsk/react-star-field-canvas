@@ -70,12 +70,14 @@ export class StarFieldEngine {
 
     // Window event - on resize to reinitialize canvas, all stars and animation
     window.addEventListener("resize", () => {
-      clearTimeout(this.resizeTimeout);
-      this.stop();
-      this.resizeTimeout = setTimeout(() => {
-        this.reset();
-        this.start();
-      }, 500);
+      if(this.options.reinitializeOnResize){
+        clearTimeout(this.resizeTimeout);
+        this.stop();
+        this.resizeTimeout = setTimeout(() => {
+          this.reset();
+          this.start();
+        }, 500);
+      }
     });
 
     // Did config set a number of stars?
